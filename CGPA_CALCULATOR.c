@@ -1,89 +1,174 @@
 /*
-author:JOSEPH PRINCE ANIEKEME 
-CREATED ON : 3 / JULY/2024
-FINISHED ON: 4/JULY/2024
-DESCRIPTION: FOR THE CALCULATION OF CGPA 
+author: JOSEPH PRINCE ANIEKEME
+CREATED ON: 3/JULY/2024
+MODIFIED ON: 5/SEPTEMBER/2025
+DESCRIPTION: Shared library for CGPA calculator with CSV storage and course management.
 */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#define MAX_COURSES 100
 #define MAX_SUBJECT_LENGTH 50
 
-int main()
+typedef struct {
+  int semester;
+  char course[MAX_SUBJECT_LENGTH];
+  int unit;
+  char grade;
+} Course;
+
+// Convert score to grade point
+int scoreToPoint(int score)
 {
-	printf("THIS CALCULATOR WILL HELP YOU CALCULATE YOU CGPA: \n"
-	       "THANKS YOU FOR WORKING WITH US.");
-
-	int initial;
-
-	printf("\nhow many courses:");
-	if (scanf("%d", &initial) != 1){
-		printf("invalid integer enter from 1 to infinity\n");
-        
-        return 0;
-        }
-    const int max_courses = 100;// it help prevent buffer overflow making sure that the user can not enter more than 99 characters.
-	int mark[max_courses];//your score gotten from each subject
-	char subject[max_courses][MAX_SUBJECT_LENGTH];//take and store the name of the subject which you want to use to calculate your cgpa
-	int credit_load[max_courses];//take and store the credit load of the course provided by the user
-    int total_credit_unit = 0;//the sum of all the credit point gotten from the scores
-    int grand_point[max_courses];//the grade you get according to your score
-    int quality_point[max_courses];//credit load * grand point
-    int total_quality_point;//sum of all the quality piont from 1 to initial
-    float CGPA;//to calculate cgpa
-    
-    
-
-	for (int i = 0; i < initial; i++)
-	{
-		printf("\nwhats the %d subjects:",i+1);
-		scanf("%s", subject[i]);
-
-		printf("what was you score in %s:", subject[i]);
-		scanf("%d", &mark[i]);
-
-		printf("whats is the credit load of %s:", subject[i]);
-		scanf("%d", &credit_load[i]);
-        
-       // total_course_credit += credit_load[i];
-	
-    //printf("\nThe course have a total of %d credit load",total_course_cgpa );
-    
-    
-     if (mark[i] >= 70) {
-        grand_point[i] = 5;
-     } // grade A
-     
-     else if (mark[i] >= 60) {
-        grand_point[i] = 4;
-     }//grade B
-     
-      else if (mark[i] <= 59 || mark[i] >= 50) {
-        grand_point[i] = 3;
-     }//grade C
-     
-       else if (mark[i] <= 49 || mark[i] >= 45){
-       grand_point[i] = 2;
-     }//grade D
-     
-       else if (mark[i] <= 43 || mark[i] >= 40){
-       grand_point[i] = 1;
-     }//grade E
-     
-     else {
-     grand_point[i] = 0;
-     }//grade F
-
-     total_credit_unit += grand_point[i];
-     
-     quality_point[i] = credit_load[i]  *  grand_point[i];
-     
-     total_quality_point += quality_point[i];
-     
-      CGPA = (float)total_quality_point / total_credit_unit;
+  if (score >= 70) return 5; // A
+  else if (score >= 60) return 4; // B
+  else if (score >= 50) return 3; // C
+  else if (score >= 45) return 2; // D
+  else if (score >= 40) return 1; // E
+  else return 0; // F
 }
 
-printf("Therfore your CGPA = %.2f \n", CGPA);
+// Convert grade point to letter grade
+char pointToGrade(int point)
+{
+  switch (point) {
+  case 5:
+    return 'A';
+  case 4:
+    return 'B';
+  case 3:
+    return 'C';
+  case 2:
+    return 'D';
+  case 1:
+    return 'E';
+  case 0:
+    return 'F';
+  default:
+    return 'F';
+  }
+}
 
-	return 0;
+// Load courses from CSV
+int loadCSV(const char *filename, Course courses[])
+{
+  FILE *file = fopen(filename, "r");
+  if (!file) return 0;
+  char line[256];
+  int count = 0;
+  fgets(line, sizeof(line), file); // Skip header
+  while (fgets(line, sizeof(line), file) && count < MAX_COURSES) {
+    char *token = strtok(line, ",");
+    courses[count].semester = atoi(token);
+    token = strtok(NULL, ",");
+    strncpy(courses[count].course, token, MAX_SUBJECT_LENGTH - 1);
+    courses[count].course[MAX_SUBJECT_LENGTH - 1] = '\0';
+    token = strtok(NULL, ",");
+    courses[count].unit = atoi(token);
+    token = strtok(NULL, ",\n");
+    courses[count].grade = token[0];
+    count++;
+  }
+  fclose(file);
+  return count;
+}
+
+// Save courses to CSV
+void saveCSV(const char *filename, Course courses[], int count)
+{
+  FILE *file = fopen(filename, "w");
+  if (!file) return;
+  fprintf(file, "Semester,Course,Unit,Grade\n");
+  for (int i = 0; i < count; i++) {
+    fprintf(file, "%d,%s,%d,%c\n", courses[i].semester,
+            courses[i].course, courses[i].unit, courses[i].grade);
+  }
+  fclose(file);
+}
+
+// View semester results
+char* viewSemester(int semester, const char *filename)
+{
+  Course courses[MAX_COURSES];
+  int count = loadCSV(filename, courses);
+  static char result[4096] = {0};
+  int totalUnits = 0, totalPoints = 0;
+  char temp[256];
+  snprintf(result, sizeof(result), "Semester %d Results:\n----------------------------------\n", semester);
+  for (int i = 0; i < count; i++) {
+    if (courses[i].semester == semester) {
+      int gp = scoreToPoint(courses[i].grade == 'A' ? 70 : courses[i].grade == 'B' ? 60 :
+                            courses[i].grade == 'C' ? 50 : courses[i].grade == 'D' ? 45 :
+                            courses[i].grade == 'E' ? 40 : 0);
+      totalUnits += courses[i].unit;
+      totalPoints += courses[i].unit * gp;
+      snprintf(temp, sizeof(temp), "Course: %s | Unit: %d | Grade: %c\n",
+               courses[i].course, courses[i].unit, courses[i].grade);
+      strncat(result, temp, sizeof(result) - strlen(result) - 1);
+    }
+  }
+  if (totalUnits > 0) {
+    float cgpa = (float)totalPoints / totalUnits;
+    snprintf(temp, sizeof(temp), "----------------------------------\nCGPA for Semester %d = %.2f\n",
+             semester, cgpa);
+    strncat(result, temp, sizeof(result) - strlen(result) - 1);
+  } else {
+    strncat(result, "No records found.\n", sizeof(result) - strlen(result) - 1);
+  }
+  return result;
+}
+
+// Add a course
+int addCourse(int semester, const char *course, int unit, int score, const char *filename)
+{
+  if (score < 0 || score > 100) return -1;
+  Course courses[MAX_COURSES];
+  int count = loadCSV(filename, courses);
+  if (count >= MAX_COURSES) return -1;
+  courses[count].semester = semester;
+  strncpy(courses[count].course, course, MAX_SUBJECT_LENGTH - 1);
+  courses[count].course[MAX_SUBJECT_LENGTH - 1] = '\0';
+  courses[count].unit = unit;
+  courses[count].grade = pointToGrade(scoreToPoint(score));
+  count++;
+  saveCSV(filename, courses, count);
+  return 0;
+}
+
+// Update a course
+int updateCourse(const char *course_name, int new_semester, int new_unit, int new_score, const char *filename)
+{
+  if (new_score < 0 || new_score > 100) return -1;
+  Course courses[MAX_COURSES];
+  int count = loadCSV(filename, courses);
+  for (int i = 0; i < count; i++) {
+    if (strcmp(courses[i].course, course_name) == 0) {
+      courses[i].semester = new_semester;
+      courses[i].unit = new_unit;
+      courses[i].grade = pointToGrade(scoreToPoint(new_score));
+      saveCSV(filename, courses, count);
+      return 0;
+    }
+  }
+  return -1;
+}
+
+// Delete a course
+int deleteCourse(const char *course_name, const char *filename)
+{
+  Course courses[MAX_COURSES];
+  int count = loadCSV(filename, courses);
+  for (int i = 0; i < count; i++) {
+    if (strcmp(courses[i].course, course_name) == 0) {
+      for (int j = i; j < count - 1; j++) {
+        courses[j] = courses[j + 1];
+      }
+      count--;
+      saveCSV(filename, courses, count);
+      return 0;
+    }
+  }
+  return -1;
 }

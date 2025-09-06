@@ -2,7 +2,7 @@
 Author: Joseph Prince Aniekeme
 Created: 3/July/2024
 Modified: 6/September/2025
-Description: Python wrapper for CGPA calculator shared library.
+Description: Python wrapper for CGPA calculator shared library with user-specific file handling.
 """
 import ctypes
 import streamlit as st
@@ -33,31 +33,31 @@ def to_c_string(s):
         raise ValueError("Input string cannot be empty")
     return s.encode('utf-8')
 
-def view_semester(semester):
+def view_semester(semester, filename):
     try:
-        result = lib.viewSemester(semester, to_c_string("results.csv"))
+        result = lib.viewSemester(semester, to_c_string(filename))
         return result.decode('utf-8')
     except Exception as e:
         st.error(f"Error in view_semester: {e}")
         raise
 
-def add_course(semester, course, unit, score):
+def add_course(semester, course, unit, score, filename):
     try:
-        return lib.addCourse(semester, to_c_string(course), unit, score, to_c_string("results.csv"))
+        return lib.addCourse(semester, to_c_string(course), unit, score, to_c_string(filename))
     except Exception as e:
         st.error(f"Error in add_course: {e}")
         raise
 
-def update_course(course_name, new_semester, new_unit, new_score):
+def update_course(course_name, new_semester, new_unit, new_score, filename):
     try:
-        return lib.updateCourse(to_c_string(course_name), new_semester, new_unit, new_score, to_c_string("results.csv"))
+        return lib.updateCourse(to_c_string(course_name), new_semester, new_unit, new_score, to_c_string(filename))
     except Exception as e:
         st.error(f"Error in update_course: {e}")
         raise
 
-def delete_course(course_name):
+def delete_course(course_name, filename):
     try:
-        return lib.deleteCourse(to_c_string(course_name), to_c_string("results.csv"))
+        return lib.deleteCourse(to_c_string(course_name), to_c_string(filename))
     except Exception as e:
         st.error(f"Error in delete_course: {e}")
         raise

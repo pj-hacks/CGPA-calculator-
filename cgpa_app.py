@@ -1,3 +1,9 @@
+"""
+Author: Joseph Prince Aniekeme
+Created: 3/July/2024
+Modified: 6/September/2025
+Description: Python wrapper for CGPA calculator shared library.
+"""
 import ctypes
 import streamlit as st
 import logging

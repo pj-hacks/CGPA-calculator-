@@ -1,17 +1,24 @@
+import os
+import subprocess
 import streamlit as st
 from cgpa_app import view_semester, add_course, update_course, delete_course
 
+# Compile cgpa_lib.so if not present
+if not os.path.exists("cgpa_lib.so"):
+    try:
+        subprocess.run(["gcc", "-shared", "-fPIC", "-o", "cgpa_lib.so", "CGPA_CALCULATOR.c", "utility.c"], check=True)
+        st.success("Compiled cgpa_lib.so successfully")
+    except subprocess.CalledProcessError as e:
+        st.error(f"Failed to compile cgpa_lib.so: {e}")
+        raise
+
 st.title("CGPA Manager")
-
-# Sidebar menu
 option = st.sidebar.selectbox("Choose an action", ["View Semester", "Add Course", "Update Course", "Delete Course"])
-
 if option == "View Semester":
     semester = st.number_input("Enter semester number", min_value=1, step=1)
     if st.button("View Results"):
         result = view_semester(semester)
         st.text(result)
-
 elif option == "Add Course":
     semester = st.number_input("Enter semester", min_value=1, step=1)
     course = st.text_input("Enter course code")
@@ -20,7 +27,6 @@ elif option == "Add Course":
     if st.button("Add Course"):
         result = add_course(semester, course, unit, score)
         st.success("Course added!" if result == 0 else "Error: Course limit reached or invalid score.")
-
 elif option == "Update Course":
     course = st.text_input("Enter course code to update")
     new_semester = st.number_input("Enter new semester", min_value=1, step=1)
@@ -29,7 +35,6 @@ elif option == "Update Course":
     if st.button("Update Course"):
         result = update_course(course, new_semester, new_unit, new_score)
         st.success("Course updated!" if result == 0 else "Error: Course not found or invalid score.")
-
 elif option == "Delete Course":
     course = st.text_input("Enter course code to delete")
     if st.button("Delete Course"):

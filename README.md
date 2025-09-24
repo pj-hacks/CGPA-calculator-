@@ -10,6 +10,31 @@
 
 -Clone using `git clone https://github.com/pj-hacks/CGPA-calculator-.git`
 
+
+### Steps on how to run the app and the program 
+
+To use the program run to see if you have python installed on your machine
+```
+python3 --version
+```
+Then run the following command to create an virtual environment
+```
+python3 -m venv venv
+source venv/bin/activate    # On Linux/macOS
+```
+For windows users run
+```
+venv\Scripts\activate       # On Windows
+```
+To install dependencies run
+```
+pip install -r requirements.txt
+```
+To run streamlit app 
+```
+streamlit run streamlit_app.py
+```
+
 -Then you= conpile using 
 ```gcc -o CGPA_CALCULATOR CGPA_CALCULATOR.C ```
 

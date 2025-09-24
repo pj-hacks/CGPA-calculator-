@@ -8,7 +8,10 @@
 3: the Credit load of the course
 4: score of wach course
 
--Clone using `git clone https://github.com/pj-hacks/CGPA-calculator-.git`
+-Clone using 
+```
+git clone https://github.com/pj-hacks/CGPA-calculator-.git
+```
 
 
 ### Steps on how to run the app and the program 
@@ -36,17 +39,26 @@ streamlit run streamlit_app.py
 ```
 
 -Then you= conpile using 
-```gcc -o CGPA_CALCULATOR CGPA_CALCULATOR.C ```
+```
+gcc -o CGPA_CALCULATOR CGPA_CALCULATOR.C
+```
 
 -Then you can then run it with
-```./CGPA_CALCULATOR```
+```
+./CGPA_CALCULATOR
+```
 
 -BUT NOTE: YOU NEED TO HAVE TERMUX INSTALLED ON YOUR PHONE VIA F-DROID
-```https://f-droid.org/F-Droid.apk```
+```
+https://f-droid.org/F-Droid.apk
+```
 
--Contact us at ```
-https://www.linkedin.com/posts/joseph-prince-642966315_well-how-do-you-see-the-calculator-tell-me-activity-7214430945074900992-rrU6?utm_source=share&utm_medium=member_android```
-
+-Contact us at
+Linkedin
+```
+https://www.linkedin.com/posts/joseph-prince-642966315_well-how-do-you-see-the-calculator-tell-me-activity-7214430945074900992-rrU6?utm_source=share&utm_medium=member_android
+```
+-whatsapp
 -``` https://wa.me/qr/ITUTVAIKN3OBC1```
 
 THANKS
